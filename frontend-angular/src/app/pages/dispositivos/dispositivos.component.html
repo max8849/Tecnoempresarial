@@ -1,0 +1,158 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div class="page-title mb-0">Puntos de Acceso / Dispositivos</div>
+  <select class="form-select w-auto" *ngIf="esSuperAdmin" [(ngModel)]="tenantFiltro" [ngModelOptions]="{standalone: true}">
+    <option value="">Todas las privadas</option>
+    <option *ngFor="let t of tenants" [value]="t.id">{{ t.name }}</option>
+  </select>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h6 class="mb-0 text-muted">PUNTOS DE ACCESO</h6>
+      <button class="btn btn-sm btn-primary" (click)="abrirModalPunto()"><i class="bi bi-plus-lg"></i> Nuevo</button>
+    </div>
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive tabla-tarjetas"><table class="table table-hover mb-0">
+          <thead><tr><th *ngIf="esSuperAdmin">Privada</th><th>Nombre</th><th>Tipo</th><th>Dirección</th><th>Activo</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let p of puntosVisibles">
+              <td data-label="Privada" *ngIf="esSuperAdmin">{{ p.tenantName }}</td>
+              <td data-label="Nombre">{{ p.name }}</td>
+              <td data-label="Tipo">{{ p.type }}</td>
+              <td data-label="Dirección">{{ p.direction }}</td>
+              <td data-label="Activo">{{ p.isActive ? 'Sí' : 'No' }}</td>
+            </tr>
+            <tr *ngIf="!puntosVisibles.length" class="fila-vacia"><td>Sin puntos de acceso.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h6 class="mb-0 text-muted">DISPOSITIVOS</h6>
+      <button class="btn btn-sm btn-primary" (click)="abrirModalDevice()"><i class="bi bi-plus-lg"></i> Nuevo</button>
+    </div>
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive tabla-tarjetas"><table class="table table-hover mb-0">
+          <thead><tr><th *ngIf="esSuperAdmin">Privada</th><th>Nombre</th><th>Driver</th><th>Estado</th><th>Puntos vinculados</th><th></th></tr></thead>
+          <tbody>
+            <tr *ngFor="let d of dispositivosVisibles">
+              <td data-label="Privada" *ngIf="esSuperAdmin">{{ d.tenantName }}</td>
+              <td data-label="Nombre">{{ d.name }}</td>
+              <td data-label="Driver">{{ d.driverType }}</td>
+              <td data-label="Estado">{{ d.status }}</td>
+              <td data-label="Puntos">{{ nombresPuntos(d) }}</td>
+              <td class="acciones">
+                <button class="btn btn-sm btn-outline-secondary" [disabled]="probando[d.id]" (click)="probarConexion(d)">
+                  {{ probando[d.id] ? 'Probando...' : 'Probar conexión' }}
+                </button>
+                <div class="small mt-1 w-100" *ngIf="resultadoPrueba[d.id]">{{ resultadoPrueba[d.id] }}</div>
+              </td>
+            </tr>
+            <tr *ngIf="!dispositivosVisibles.length" class="fila-vacia"><td>Sin dispositivos.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalAccessPoint" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="formPunto" (ngSubmit)="onGuardarPunto()">
+        <div class="modal-header"><h5 class="modal-title">Nuevo punto de acceso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="alert alert-danger py-2" *ngIf="errorPunto">{{ errorPunto }}</div>
+          <div class="mb-2" *ngIf="esSuperAdmin">
+            <label class="form-label">Privada</label>
+            <select class="form-select" formControlName="tenantId" required>
+              <option value="" disabled>Selecciona una privada</option>
+              <option *ngFor="let t of tenants" [value]="t.id">{{ t.name }}</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Nombre</label><input type="text" class="form-control" formControlName="name" placeholder="Ej. Entrada Principal" required></div>
+          <div class="mb-2"><label class="form-label">Tipo</label>
+            <select class="form-select" formControlName="type">
+              <option value="VehicularGate">Pluma vehicular</option>
+              <option value="PedestrianGate">Portón peatonal</option>
+              <option value="MainEntrance">Entrada principal</option>
+              <option value="ServiceEntrance">Entrada de servicio</option>
+              <option value="Other">Otro</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Dirección</label>
+            <select class="form-select" formControlName="direction">
+              <option value="Both">Ambas</option>
+              <option value="In">Entrada</option>
+              <option value="Out">Salida</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary" [disabled]="formPunto.invalid">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalDevice" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="formDevice" (ngSubmit)="onGuardarDevice()">
+        <div class="modal-header"><h5 class="modal-title">Nuevo dispositivo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="alert alert-danger py-2" *ngIf="errorDevice">{{ errorDevice }}</div>
+          <div class="mb-2" *ngIf="esSuperAdmin">
+            <label class="form-label">Privada</label>
+            <select class="form-select" formControlName="tenantId" required (change)="onCambioPrivadaDevice()">
+              <option value="" disabled>Selecciona una privada</option>
+              <option *ngFor="let t of tenants" [value]="t.id">{{ t.name }}</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Nombre</label><input type="text" class="form-control" formControlName="name" placeholder="Ej. Pluma Entrada Principal" required></div>
+          <div class="mb-2"><label class="form-label">Fabricante</label><input type="text" class="form-control" formControlName="manufacturer" placeholder="Mock / Shelly / Hikvision..."></div>
+          <div class="mb-2"><label class="form-label">Driver</label>
+            <select class="form-select" formControlName="driverType">
+              <option value="Mock">Mock (desarrollo/demo)</option>
+              <option value="ShellyCloud">Shelly Cloud</option>
+              <option value="Hikvision">Hikvision (backend en la misma LAN)</option>
+              <option value="HikvisionViaAgente">Hikvision vía agente local (backend centralizado)</option>
+              <option value="GenericRelay">Relay genérico</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">IP</label><input type="text" class="form-control" formControlName="ipAddress" placeholder="Ej. 192.168.1.50"></div>
+
+          <div *ngIf="esDriverConCredenciales" class="border rounded p-3 mb-2 bg-light">
+            <p class="small text-muted mb-2">Credenciales del panel Hikvision (las mismas de su página de configuración web).</p>
+            <div class="row g-2">
+              <div class="col-6"><label class="form-label">Usuario</label><input type="text" class="form-control" formControlName="username"></div>
+              <div class="col-6"><label class="form-label">Contraseña</label><input type="password" class="form-control" formControlName="password"></div>
+              <div class="col-6"><label class="form-label">Puerto</label><input type="number" class="form-control" formControlName="port"></div>
+              <div class="col-6 d-flex align-items-end">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" formControlName="useHttps" id="useHttpsCheck">
+                  <label class="form-check-label" for="useHttpsCheck">Usar HTTPS</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="mb-2">
+            <label class="form-label">Vincular a punto de acceso</label>
+            <select class="form-select" formControlName="accessPointId">
+              <option value="">-- Sin vincular --</option>
+              <option *ngFor="let p of puntosDelFormulario" [value]="p.id">{{ p.name }}</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Canal / relay</label><input type="number" class="form-control" formControlName="channelNumber" min="1"></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary" [disabled]="formDevice.invalid">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>

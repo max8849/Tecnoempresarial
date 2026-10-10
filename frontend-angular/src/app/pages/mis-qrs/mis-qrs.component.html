@@ -1,0 +1,57 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div><div class="page-title mb-0">Mis Visitantes / QRs</div><div class="page-subtitle">Genera accesos temporales para tus visitas — válidos por 24 horas, un solo uso</div></div>
+  <button class="btn btn-primary" (click)="abrirModalNuevo()"><i class="bi bi-plus-lg"></i> Generar QR</button>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive tabla-tarjetas"><table class="table table-hover mb-0">
+      <thead><tr><th>Visitante</th><th>Placa</th><th>Vigencia</th><th>Usos</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let p of qrs">
+          <td data-label="Visitante">{{ p.visitorName }}</td>
+          <td data-label="Placa">{{ p.vehiclePlate || '-' }}</td>
+          <td data-label="Vigencia">{{ p.validFrom | date:'short' }} — {{ p.validUntil | date:'short' }}</td>
+          <td data-label="Usos">{{ p.currentUses }}/{{ p.maxUses }}</td>
+          <td data-label="Estado"><span class="badge" [ngClass]="'badge-pass-' + p.status">{{ etiquetas[p.status] }}</span></td>
+          <td class="acciones">
+            <button *ngIf="p.qrImageBase64" class="btn btn-sm btn-outline-primary" (click)="verQr(p)"><i class="bi bi-qr-code"></i> Ver QR</button>
+            <button *ngIf="p.status === 'Active'" class="btn btn-sm btn-outline-danger" (click)="revocar(p.id)">Revocar</button>
+          </td>
+        </tr>
+        <tr *ngIf="!qrs.length" class="fila-vacia"><td>Aún no has generado ningún QR.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO QR -->
+<div class="modal fade" id="modalNuevoQr" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <form [formGroup]="form" (ngSubmit)="onGenerar()">
+        <div class="modal-header"><h5 class="modal-title">Generar QR para visita</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <p class="text-muted small">El QR será válido desde ahora y durante las próximas 24 horas, para un solo uso.</p>
+          <div class="mb-2"><label class="form-label">Nombre del visitante</label><input type="text" class="form-control" formControlName="visitorName" required></div>
+          <div class="mb-2"><label class="form-label">Placa del vehículo (opcional)</label><input type="text" class="form-control" formControlName="vehiclePlate"></div>
+          <div class="mb-2"><label class="form-label">Notas (opcional)</label><textarea class="form-control" formControlName="notes" rows="2"></textarea></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary" [disabled]="form.invalid">Generar QR</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER QR -->
+<div class="modal fade" id="modalVerQr" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Código QR</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body text-center" *ngIf="qrParaMostrar">
+        <img class="qr-imagen mb-3" [src]="'data:image/png;base64,' + qrParaMostrar.qrImageBase64" alt="Código QR">
+        <p class="text-muted small">Comparte esta imagen con <strong>{{ qrParaMostrar.visitorName }}</strong>. Sigue disponible mientras el pase esté activo.</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="app-shell">
+
+  <div class="overlay-sidebar" [class.activa]="sidebarAbierta" (click)="cerrarSidebar()"></div>
+
+  <aside class="sidebar" [class.abierta]="sidebarAbierta">
+    <div class="sidebar-brand">
+      <img src="logo-tecnoempresarial.png" alt="Tecnoempresarial" class="sidebar-logo">
+    </div>
+    <nav class="sidebar-nav">
+      <ng-container *ngFor="let item of menuVisible()">
+        <div class="sidebar-section-label" *ngIf="item.seccionLabel">{{ item.seccionLabel }}</div>
+        <a class="nav-link" [routerLink]="item.ruta" routerLinkActive="activo" (click)="cerrarSidebar()">
+          <i class="bi" [ngClass]="item.icono"></i> {{ item.texto }}
+        </a>
+      </ng-container>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="usuario-nombre">{{ auth.sesion()?.fullName }}</div>
+      <div class="usuario-rol">{{ etiquetaRol(auth.sesion()?.role) }}</div>
+      <button class="btn btn-sm btn-outline-light w-100 mt-2" (click)="abrirCambioContrasena()"><i class="bi bi-key"></i> Cambiar contraseña</button>
+      <button class="btn btn-sm btn-outline-light w-100 mt-2" (click)="salir()"><i class="bi bi-box-arrow-right"></i> Salir</button>
+    </div>
+  </aside>
+
+  <div class="modal fade" id="modalMiContrasena" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form [formGroup]="formContrasena" (ngSubmit)="guardarCambioContrasena()">
+          <div class="modal-header"><h5 class="modal-title">Cambiar mi contraseña</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <div class="alert alert-danger py-2" *ngIf="errorContrasena">{{ errorContrasena }}</div>
+            <div class="alert alert-success py-2" *ngIf="exitoContrasena">Contraseña actualizada. Tus otras sesiones se cerraron.</div>
+            <div class="mb-2"><label class="form-label">Contraseña actual</label><input type="password" class="form-control" formControlName="contrasenaActual" autocomplete="current-password" required></div>
+            <div class="mb-2">
+              <label class="form-label">Contraseña nueva</label>
+              <input type="password" class="form-control" formControlName="contrasenaNueva" autocomplete="new-password" required>
+              <div class="form-text">Mínimo 10 caracteres, con mayúscula, minúscula y número.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="formContrasena.invalid || exitoContrasena">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="contenido">
+    <div class="topbar">
+      <button class="btn btn-menu-movil btn-outline-secondary" (click)="toggleSidebar()"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">{{ auth.sesion()?.fullName }}</span>
+      <span></span>
+    </div>
+    <div class="contenido-body">
+      <router-outlet />
+    </div>
+  </div>
+
+</div>

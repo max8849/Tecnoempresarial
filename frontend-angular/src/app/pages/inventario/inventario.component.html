@@ -1,0 +1,105 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div><div class="page-title mb-0">Equipo e Inventario</div><div class="page-subtitle">Plumas, motores, paneles, cámaras y demás equipo físico instalado</div></div>
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn btn-outline-success" *ngIf="esSuperAdmin" [disabled]="!items.length" (click)="exportarExcel()"><i class="bi bi-file-earmark-excel"></i> Descargar Excel</button>
+    <button class="btn btn-primary" (click)="abrirModalNuevo()"><i class="bi bi-plus-lg"></i> Nuevo ítem</button>
+  </div>
+</div>
+
+<div class="row g-2 mb-3" *ngIf="esSuperAdmin">
+  <div class="col-auto">
+    <select class="form-select" [(ngModel)]="tenantFiltro" [ngModelOptions]="{standalone: true}" (change)="cargar()">
+      <option value="">Todas las privadas</option>
+      <option *ngFor="let t of tenants" [value]="t.id">{{ t.name }}</option>
+    </select>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive tabla-tarjetas"><table class="table table-hover mb-0">
+      <thead><tr>
+        <th *ngIf="esSuperAdmin">Privada</th><th>Nombre</th><th>Categoría</th><th>Marca/Modelo</th>
+        <th>N° de serie</th><th>Estado</th><th>Ubicación</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr *ngFor="let i of items">
+          <td data-label="Privada" *ngIf="esSuperAdmin">{{ i.tenantName }}</td>
+          <td data-label="Nombre">{{ i.name }}</td>
+          <td data-label="Categoría">{{ etiquetaCategoria[i.category] }}</td>
+          <td data-label="Marca/Modelo">{{ marcaModelo(i) }}</td>
+          <td data-label="N° de serie">{{ i.serialNumber || '-' }}</td>
+          <td data-label="Estado"><span class="badge" [ngClass]="'badge-inv-' + i.status">{{ etiquetaEstado[i.status] }}</span></td>
+          <td data-label="Ubicación">{{ i.location || '-' }}</td>
+          <td class="acciones">
+            <button class="btn btn-sm btn-outline-primary" (click)="abrirModalEditar(i)">Editar</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="eliminar(i.id)">Eliminar</button>
+          </td>
+        </tr>
+        <tr *ngIf="!items.length" class="fila-vacia"><td>Sin equipo registrado todavía.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalInventario" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <form [formGroup]="form" (ngSubmit)="onGuardar()">
+        <div class="modal-header"><h5 class="modal-title">{{ editandoId ? 'Editar' : 'Nuevo' }} ítem de inventario</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-2" *ngIf="esSuperAdmin && !editandoId">
+            <label class="form-label">Privada</label>
+            <select class="form-select" formControlName="tenantId">
+              <option *ngFor="let t of tenants" [value]="t.id">{{ t.name }}</option>
+            </select>
+          </div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-6">
+              <label class="form-label">Categoría</label>
+              <select class="form-select" formControlName="category">
+                <option value="Barrier">Pluma / Barrera</option>
+                <option value="GateMotor">Motor de portón</option>
+                <option value="HikvisionPanel">Panel de control</option>
+                <option value="Camera">Cámara</option>
+                <option value="Reader">Lector</option>
+                <option value="Relay">Relay</option>
+                <option value="NetworkEquipment">Equipo de red</option>
+                <option value="Ups">UPS / Respaldo eléctrico</option>
+                <option value="Cabling">Cableado</option>
+                <option value="Other">Otro</option>
+              </select>
+            </div>
+            <div class="col-12 col-sm-6" *ngIf="editandoId">
+              <label class="form-label">Estado</label>
+              <select class="form-select" formControlName="status">
+                <option value="Active">Activo</option>
+                <option value="InRepair">En reparación</option>
+                <option value="InStorage">En almacén</option>
+                <option value="Decommissioned">Dado de baja</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Nombre / identificador</label><input type="text" class="form-control" formControlName="name" placeholder="Ej. Pluma Entrada Principal" required></div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-4"><label class="form-label">Marca</label><input type="text" class="form-control" formControlName="brand"></div>
+            <div class="col-12 col-sm-4"><label class="form-label">Modelo</label><input type="text" class="form-control" formControlName="model"></div>
+            <div class="col-12 col-sm-4"><label class="form-label">N° de serie</label><input type="text" class="form-control" formControlName="serialNumber"></div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Ubicación</label><input type="text" class="form-control" formControlName="location" placeholder="Ej. Caseta principal"></div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-4"><label class="form-label">Fecha de instalación</label><input type="date" class="form-control" formControlName="installationDate"></div>
+            <div class="col-12 col-sm-4"><label class="form-label">Fecha de compra</label><input type="date" class="form-control" formControlName="purchaseDate"></div>
+            <div class="col-12 col-sm-4"><label class="form-label">Garantía hasta</label><input type="date" class="form-control" formControlName="warrantyUntil"></div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-12 col-sm-6"><label class="form-label">Proveedor</label><input type="text" class="form-control" formControlName="provider"></div>
+            <div class="col-12 col-sm-6"><label class="form-label">Costo</label><input type="number" step="0.01" class="form-control" formControlName="cost"></div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Notas</label><textarea class="form-control" formControlName="notes" rows="2"></textarea></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>

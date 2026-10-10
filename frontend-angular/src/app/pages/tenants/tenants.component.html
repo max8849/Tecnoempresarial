@@ -1,0 +1,62 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div class="page-title mb-0">Privadas</div>
+  <button class="btn btn-primary" (click)="abrirModal()"><i class="bi bi-plus-lg"></i> Nueva privada</button>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive tabla-tarjetas"><table class="table table-hover mb-0">
+      <thead><tr><th>Nombre</th><th>Slug</th><th>Activa</th><th>Casas</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let t of tenants">
+          <td data-label="Nombre">{{ t.name }}</td>
+          <td data-label="Slug">{{ t.slug }}</td>
+          <td data-label="Activa">{{ t.isActive ? 'Sí' : 'No' }}</td>
+          <td data-label="Casas">{{ t.totalHouses }}</td>
+          <td class="acciones">
+            <button class="btn btn-sm btn-outline-primary" (click)="verClaveAgente(t)">Ver clave del agente</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="regenerarClaveAgente(t)">Regenerar</button>
+          </td>
+        </tr>
+        <tr *ngIf="!tenants.length" class="fila-vacia"><td>Sin privadas registradas.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalTenant" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="form" (ngSubmit)="onGuardar()">
+        <div class="modal-header"><h5 class="modal-title">Nueva privada</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Nombre</label><input type="text" class="form-control" formControlName="name" required></div>
+          <div class="mb-2"><label class="form-label">Slug (identificador único, sin espacios)</label><input type="text" class="form-control" formControlName="slug" required></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalClaveAgente" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" *ngIf="claveAgente">
+      <div class="modal-header">
+        <h5 class="modal-title">Clave del agente — {{ claveAgente.tenantName }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-1">
+          Estado:
+          <span class="badge" [ngClass]="claveAgente.agentConectado ? 'badge-pass-Active' : 'badge-pass-Revoked'">
+            {{ claveAgente.agentConectado ? 'Agente conectado' : 'Agente desconectado' }}
+          </span>
+        </p>
+        <label class="form-label mt-2">AgentApiKey (copiar en el appsettings.json del Agente)</label>
+        <input type="text" class="form-control font-monospace" readonly [value]="claveAgente.agentApiKey">
+        <p class="text-muted small mt-2">Esta clave va en el <code>appsettings.json</code> del programa Agente instalado en la mini PC de esta privada, junto con la URL del backend.</p>
+      </div>
+    </div>
+  </div>
+</div>

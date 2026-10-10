@@ -1,0 +1,25 @@
+<div class="login-page">
+  <div class="card login-card">
+    <div class="card-body p-4 p-md-5">
+      <div class="text-center mb-3">
+        <img src="logo-tecnoempresarial.png" alt="Tecnoempresarial" class="login-logo">
+      </div>
+      <h4 class="card-title mb-4 text-center fw-bold">Portal Tecnoempresarial</h4>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label class="form-label">Correo</label>
+          <input type="email" class="form-control" formControlName="email" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Contraseña</label>
+          <input type="password" class="form-control" formControlName="password" required>
+        </div>
+        <div class="alert alert-danger py-2" *ngIf="error">{{ error }}</div>
+        <button type="submit" class="btn btn-primary w-100" [disabled]="form.invalid || cargando">
+          {{ cargando ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<div class="page-title mb-3">Historial de Accesos</div>
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive tabla-tarjetas"><table class="table table-hover mb-0">
+      <thead><tr><th>Fecha</th><th>Tipo</th><th>Resultado</th><th>Visitante</th><th>Punto de acceso</th><th>Dispositivo</th><th>Detalle</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let ev of eventos">
+          <td data-label="Fecha">{{ ev.timestamp | date:'short' }}</td>
+          <td data-label="Tipo">{{ etiquetaEvento(ev.eventType) }}</td>
+          <td data-label="Resultado">{{ etiquetaResultado(ev.result) }}</td>
+          <td data-label="Visitante">{{ ev.visitorName || '-' }}</td>
+          <td data-label="Punto">{{ ev.accessPointName || '-' }}</td>
+          <td data-label="Dispositivo">{{ ev.deviceName || '-' }}</td>
+          <td data-label="Detalle" class="small text-muted">{{ ev.metadata || '-' }}</td>
+        </tr>
+        <tr *ngIf="!eventos.length" class="fila-vacia"><td>Sin eventos todavía.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>

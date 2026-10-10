@@ -1,0 +1,148 @@
+:root {
+  --brand: #4f46e5;
+  --brand-dark: #4338ca;
+  --brand-light: #818cf8;
+  --sidebar-bg: #0f172a;
+  --sidebar-bg-hover: #1e293b;
+  --sidebar-text: #94a3b8;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+.brand-mark {
+  width: 52px; height: 52px; border-radius: .75rem;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.5rem; margin: 0 auto 1rem;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  border: none;
+  box-shadow: 0 10px 40px rgba(15, 23, 42, .08);
+  border-radius: 1rem;
+}
+.login-logo {
+  width: 150px;
+  max-width: 100%;
+  height: auto;
+}
+
+.card { border: 1px solid var(--border); border-radius: .75rem; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+.card-header { background: var(--surface); border-bottom: 1px solid var(--border); font-weight: 600; }
+
+.page-title { font-size: 1.4rem; font-weight: 700; margin-bottom: .25rem; }
+.page-subtitle { color: var(--text-muted); font-size: .9rem; }
+
+.kpi-card .kpi-valor { font-size: 1.8rem; font-weight: 700; color: var(--text); }
+.kpi-card .kpi-label { color: var(--text-muted); font-size: .82rem; }
+.kpi-card .kpi-icono {
+  width: 44px; height: 44px; border-radius: .6rem;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(79,70,229,.1); color: var(--brand); font-size: 1.2rem;
+}
+
+.table thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); border-bottom-width: 1px; }
+.table td, .table th { vertical-align: middle; }
+
+.btn-primary { background: var(--brand); border-color: var(--brand); }
+.btn-primary:hover, .btn-primary:focus { background: var(--brand-dark); border-color: var(--brand-dark); }
+.btn-outline-primary { color: var(--brand); border-color: var(--brand); }
+.btn-outline-primary:hover { background: var(--brand); border-color: var(--brand); }
+
+.badge-estado-Active { background-color: #16a34a; }
+.badge-estado-Inactive { background-color: #94a3b8; }
+
+.badge-pass-Active { background-color: #16a34a; }
+.badge-pass-Used { background-color: #94a3b8; }
+.badge-pass-Expired { background-color: #cbd5e1; color: #0f172a; }
+.badge-pass-Revoked, .badge-pass-Disabled { background-color: #dc2626; }
+
+.badge-inv-Active { background-color: #16a34a; }
+.badge-inv-InRepair { background-color: #f59e0b; color: #451a03; }
+.badge-inv-InStorage { background-color: #64748b; }
+.badge-inv-Decommissioned { background-color: #dc2626; }
+
+.qr-imagen { width: 240px; height: 240px; border: 1px solid var(--border); border-radius: .75rem; background: #fff; padding: .5rem; }
+
+#lectorQr { width: 100%; max-width: 420px; margin: 0 auto; border-radius: .5rem; overflow: hidden; }
+.resultado-scan-ok { background-color: #dcfce7; border: 1px solid #16a34a; }
+.resultado-scan-error { background-color: #fee2e2; border: 1px solid #dc2626; }
+
+.modal-footer { flex-wrap: wrap; gap: .5rem; }
+
+@media (max-width: 767.98px) {
+  .page-title { font-size: 1.2rem; }
+  .card-header { font-size: .95rem; }
+  .modal-footer .btn { flex: 1 1 auto; }
+  .btn-sm { padding: .35rem .6rem; }
+
+  .tabla-tarjetas {
+    overflow: visible;
+
+    thead { display: none; }
+    table, tbody { display: block; width: 100%; }
+
+    tr {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: .6rem;
+      margin: .6rem;
+      padding: .35rem .8rem;
+    }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      border: 0;
+      padding: .3rem 0;
+      text-align: right;
+      overflow-wrap: anywhere;
+
+      &[data-label]::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        font-size: .7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        color: var(--text-muted);
+        text-align: left;
+      }
+
+      &.acciones {
+        justify-content: stretch;
+        flex-wrap: wrap;
+        padding-top: .5rem;
+        .btn { flex: 1 1 auto; }
+      }
+    }
+
+    tr.fila-vacia { background: transparent; border: 0; padding: 0; }
+    tr.fila-vacia td { display: block; text-align: center; }
+  }
+}

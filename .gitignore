@@ -1,0 +1,24 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Secretos de producción: NUNCA deben subirse al repo
+src/AccessControl.Api/appsettings.Production.json
+
+# Angular / Node
+frontend-angular/node_modules/
+frontend-angular/dist/
+frontend-angular/.angular/
+npm-debug.log*
+
+# Build de Angular ya copiado dentro de la API (se regenera en el build de Docker)
+src/AccessControl.Api/wwwroot/*
+!src/AccessControl.Api/wwwroot/.gitkeep
+
+# Varios
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,56 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div class="page-title mb-0">Residentes</div>
+  <div class="d-flex flex-wrap gap-2">
+    <select class="form-select w-auto" *ngIf="esSuperAdmin" [(ngModel)]="tenantFiltro" [ngModelOptions]="{standalone: true}">
+      <option value="">Todas las privadas</option>
+      <option *ngFor="let t of tenants" [value]="t.id">{{ t.name }}</option>
+    </select>
+    <button class="btn btn-primary" (click)="abrirModal()"><i class="bi bi-plus-lg"></i> Nuevo residente</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive tabla-tarjetas"><table class="table table-hover mb-0">
+      <thead><tr><th>Nombre</th><th *ngIf="esSuperAdmin">Privada</th><th>Casa</th><th>Teléfono</th><th>Email</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let r of residentesVisibles">
+          <td data-label="Nombre">{{ r.firstName }} {{ r.lastName }}</td>
+          <td data-label="Privada" *ngIf="esSuperAdmin">{{ r.tenantName }}</td>
+          <td data-label="Casa">{{ r.houseNumber }}</td>
+          <td data-label="Teléfono">{{ r.phone || '-' }}</td>
+          <td data-label="Email">{{ r.email || '-' }}</td>
+          <td data-label="Estado"><span class="badge" [ngClass]="'badge-estado-' + r.status">{{ r.status === 'Active' ? 'Activo' : 'Inactivo' }}</span></td>
+        </tr>
+        <tr *ngIf="!residentesVisibles.length" class="fila-vacia"><td>Sin residentes registrados.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalResidente" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="form" (ngSubmit)="onGuardar()">
+        <div class="modal-header"><h5 class="modal-title">Nuevo residente</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="alert alert-danger py-2" *ngIf="error">{{ error }}</div>
+          <div class="mb-2">
+            <label class="form-label">Casa</label>
+            <select class="form-select" formControlName="houseId" required>
+              <option value="" disabled>Selecciona una casa</option>
+              <option *ngFor="let c of casasVisibles" [value]="c.id">{{ etiquetaCasa(c) }}</option>
+            </select>
+          </div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-6"><label class="form-label">Nombre</label><input type="text" class="form-control" formControlName="firstName" required></div>
+            <div class="col-12 col-sm-6"><label class="form-label">Apellido</label><input type="text" class="form-control" formControlName="lastName" required></div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Teléfono</label><input type="text" class="form-control" formControlName="phone"></div>
+          <div class="mb-2"><label class="form-label">Email</label><input type="email" class="form-control" formControlName="email"></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>

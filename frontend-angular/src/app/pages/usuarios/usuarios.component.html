@@ -1,0 +1,113 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <div class="page-title mb-0">Cuentas de acceso</div>
+    <div class="page-subtitle">Crea, desactiva y restablece las cuentas de quien entra al portal</div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <select class="form-select w-auto" *ngIf="esSuperAdmin" [(ngModel)]="tenantFiltro" [ngModelOptions]="{standalone: true}">
+      <option value="">Todas las privadas</option>
+      <option *ngFor="let t of tenants" [value]="t.id">{{ t.name }}</option>
+    </select>
+    <button class="btn btn-primary" (click)="abrirModalNuevo()"><i class="bi bi-person-plus"></i> Nueva cuenta</button>
+  </div>
+</div>
+
+<div class="alert alert-success py-2" *ngIf="exito">{{ exito }}</div>
+<div class="alert alert-danger py-2" *ngIf="error">{{ error }}</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive tabla-tarjetas"><table class="table table-hover mb-0">
+      <thead><tr>
+        <th>Nombre</th><th>Correo</th><th>Rol</th><th *ngIf="esSuperAdmin">Privada</th><th>Casa</th><th>Estado</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr *ngFor="let u of usuariosVisibles">
+          <td data-label="Nombre">{{ u.fullName }}</td>
+          <td data-label="Correo">{{ u.email }}</td>
+          <td data-label="Rol">{{ etiquetaRol(u.role) }}</td>
+          <td data-label="Privada" *ngIf="esSuperAdmin">{{ u.tenantName }}</td>
+          <td data-label="Casa">{{ u.casa || '-' }}</td>
+          <td data-label="Estado"><span class="badge" [ngClass]="u.activo ? 'badge-estado-Active' : 'badge-estado-Inactive'">{{ u.activo ? 'Activa' : 'Desactivada' }}</span></td>
+          <td class="acciones">
+            <button class="btn btn-sm btn-outline-primary" (click)="abrirRestablecer(u)">Restablecer contraseña</button>
+            <button class="btn btn-sm" [ngClass]="u.activo ? 'btn-outline-danger' : 'btn-outline-success'" (click)="alternarActivo(u)">
+              {{ u.activo ? 'Desactivar' : 'Activar' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="!usuariosVisibles.length" class="fila-vacia"><td>Sin cuentas registradas.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalCuenta" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="form" (ngSubmit)="onGuardar()">
+        <div class="modal-header"><h5 class="modal-title">Nueva cuenta de acceso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="alert alert-danger py-2" *ngIf="errorModal">{{ errorModal }}</div>
+
+          <div class="mb-2">
+            <label class="form-label">Rol</label>
+            <select class="form-select" formControlName="role" (change)="onRolCambio()">
+              <option *ngFor="let r of rolesPermitidos" [value]="r.valor">{{ r.etiqueta }}</option>
+            </select>
+          </div>
+
+          <div class="mb-2" *ngIf="esSuperAdmin && form.value.role !== 'SUPER_ADMIN'">
+            <label class="form-label">Privada</label>
+            <select class="form-select" formControlName="tenantId" (change)="onPrivadaCambio()">
+              <option value="" disabled>Selecciona una privada</option>
+              <option *ngFor="let t of tenants" [value]="t.id">{{ t.name }}</option>
+            </select>
+          </div>
+
+          <div class="mb-2" *ngIf="form.value.role === 'RESIDENTE'">
+            <label class="form-label">Residente</label>
+            <select class="form-select" formControlName="residentId" (change)="onResidenteCambio()">
+              <option value="" disabled>Selecciona un residente</option>
+              <option *ngFor="let r of residentesDelFormulario" [value]="r.id">{{ etiquetaResidente(r) }}</option>
+            </select>
+            <div class="form-text">Sólo aparecen residentes sin cuenta. Si no está, regístralo primero en la pantalla Residentes.</div>
+          </div>
+
+          <div class="mb-2"><label class="form-label">Nombre completo</label><input type="text" class="form-control" formControlName="fullName" required></div>
+          <div class="mb-2"><label class="form-label">Correo (será su usuario)</label><input type="email" class="form-control" formControlName="email" required></div>
+          <div class="mb-2">
+            <label class="form-label">Contraseña inicial</label>
+            <input type="text" class="form-control" formControlName="password" autocomplete="off" required>
+            <div class="form-text">Mínimo 10 caracteres, con mayúscula, minúscula y número. Pídele que la cambie al entrar.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Crear cuenta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalRestablecer" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form [formGroup]="formRestablecer" (ngSubmit)="onRestablecer()">
+        <div class="modal-header"><h5 class="modal-title">Restablecer contraseña</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="alert alert-danger py-2" *ngIf="errorModal">{{ errorModal }}</div>
+          <p class="mb-2">Cuenta: <strong>{{ usuarioRestablecer?.fullName }}</strong> ({{ usuarioRestablecer?.email }})</p>
+          <label class="form-label">Nueva contraseña</label>
+          <input type="text" class="form-control" formControlName="password" autocomplete="off" required>
+          <div class="form-text">Mínimo 10 caracteres, con mayúscula, minúscula y número. Al guardar se cierran sus sesiones abiertas.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="formRestablecer.invalid">Restablecer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

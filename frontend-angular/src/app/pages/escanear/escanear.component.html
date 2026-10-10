@@ -1,0 +1,43 @@
+<div class="page-title">Escanear QR</div>
+<div class="page-subtitle mb-3">Valida el acceso de un visitante en la caseta</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div id="lectorQr"></div>
+        <button class="btn btn-outline-secondary w-100 mt-3" *ngIf="!camaraActiva" (click)="iniciarCamara()"><i class="bi bi-camera"></i> Iniciar cámara</button>
+        <button class="btn btn-outline-danger w-100 mt-2" *ngIf="camaraActiva" (click)="detenerCamara()">Detener cámara</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <label class="form-label">O pega el contenido del QR manualmente</label>
+        <div class="input-group">
+          <input type="text" class="form-control" [(ngModel)]="tokenManual" placeholder="selector.verifier" [disabled]="!!resultado">
+          <button class="btn btn-primary" (click)="escanearManual()" [disabled]="!!resultado">Escanear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card" *ngIf="resultado" [ngClass]="resultado.isAuthorized ? 'resultado-scan-ok' : 'resultado-scan-error'">
+      <div class="card-body">
+        <ng-container *ngIf="resultado.isAuthorized; else denegado">
+          <h4>✅ Acceso autorizado</h4>
+          <p class="mb-1"><strong>{{ resultado.visitorName }}</strong> — Casa {{ resultado.houseNumber }}</p>
+          <p class="mb-1" *ngIf="resultado.vehiclePlate">Placa: <strong>{{ resultado.vehiclePlate }}</strong></p>
+          <p>{{ resultado.openCommandSent ? 'Comando de apertura enviado correctamente.' : '⚠️ No se pudo enviar el comando de apertura (revisa dispositivos).' }}</p>
+        </ng-container>
+        <ng-template #denegado>
+          <h4>❌ Acceso denegado</h4>
+          <p class="mb-1" *ngIf="resultado.visitorName"><strong>{{ resultado.visitorName }}</strong></p>
+          <p class="mb-1" *ngIf="resultado.vehiclePlate">Placa: <strong>{{ resultado.vehiclePlate }}</strong></p>
+          <p>{{ resultado.denialReason || 'Motivo no especificado.' }}</p>
+        </ng-template>
+        <button class="btn btn-primary w-100 mt-2" (click)="escanearSiguiente()"><i class="bi bi-arrow-repeat"></i> Escanear siguiente</button>
+      </div>
+    </div>
+  </div>
+</div>

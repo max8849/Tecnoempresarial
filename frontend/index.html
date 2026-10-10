@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AccessControl SaaS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox" class="card">
+  <div class="card-body p-4 p-md-5">
+    <div class="brand-mark"><i class="bi bi-shield-lock-fill"></i></div>
+    <h4 class="card-title mb-1 text-center fw-bold">Control de Acceso</h4>
+    <p class="text-muted text-center small mb-4">Plataforma para privadas residenciales</p>
+    <form id="formLogin">
+      <div class="mb-3"><label class="form-label">Correo</label><input type="email" class="form-control" id="loginEmail" required></div>
+      <div class="mb-3"><label class="form-label">Contraseña</label><input type="password" class="form-control" id="loginPassword" required></div>
+      <div id="loginError" class="alert alert-danger py-2 d-none"></div>
+      <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="d-none">
+
+  <div class="overlay-sidebar" id="overlaySidebar"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark"><i class="bi bi-shield-lock-fill"></i></div>
+      <span>Control de Acceso</span>
+    </div>
+    <nav class="sidebar-nav" id="navMenu">
+      <div class="sidebar-section-label" data-rol="ADMIN_PRIVADA,SUPER_ADMIN">Panel</div>
+      <div data-rol="ADMIN_PRIVADA,SUPER_ADMIN"><a class="nav-link" href="#" data-seccion="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></div>
+
+      <div class="sidebar-section-label" data-rol="RESIDENTE">Mi cuenta</div>
+      <div data-rol="RESIDENTE"><a class="nav-link" href="#" data-seccion="mis-qrs"><i class="bi bi-qr-code"></i> Mis Visitantes / QRs</a></div>
+
+      <div class="sidebar-section-label" data-rol="GUARDIA,ADMIN_PRIVADA">Caseta</div>
+      <div data-rol="GUARDIA,ADMIN_PRIVADA"><a class="nav-link" href="#" data-seccion="escanear"><i class="bi bi-camera"></i> Escanear QR</a></div>
+
+      <div class="sidebar-section-label" data-rol="ADMIN_PRIVADA">Administración de la privada</div>
+      <div data-rol="ADMIN_PRIVADA"><a class="nav-link" href="#" data-seccion="casas"><i class="bi bi-house-door"></i> Casas</a></div>
+      <div data-rol="ADMIN_PRIVADA"><a class="nav-link" href="#" data-seccion="residentes"><i class="bi bi-people"></i> Residentes</a></div>
+      <div data-rol="ADMIN_PRIVADA"><a class="nav-link" href="#" data-seccion="dispositivos"><i class="bi bi-hdd-network"></i> Puntos de Acceso / Dispositivos</a></div>
+
+      <div class="sidebar-section-label" data-rol="ADMIN_PRIVADA,SUPER_ADMIN">Inventario</div>
+      <div data-rol="ADMIN_PRIVADA,SUPER_ADMIN"><a class="nav-link" href="#" data-seccion="inventario"><i class="bi bi-box-seam"></i> Equipo e Inventario</a></div>
+
+      <div class="sidebar-section-label" data-rol="ADMIN_PRIVADA,GUARDIA,SUPER_ADMIN">Auditoría</div>
+      <div data-rol="ADMIN_PRIVADA,GUARDIA,SUPER_ADMIN"><a class="nav-link" href="#" data-seccion="eventos"><i class="bi bi-clock-history"></i> Historial de Accesos</a></div>
+
+      <div class="sidebar-section-label" data-rol="SUPER_ADMIN">Sistema</div>
+      <div data-rol="SUPER_ADMIN"><a class="nav-link" href="#" data-seccion="tenants"><i class="bi bi-buildings"></i> Privadas</a></div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="usuario-nombre" id="usuarioNombre"></div>
+      <div class="usuario-rol" id="usuarioRol"></div>
+      <button class="btn btn-sm btn-outline-light w-100 mt-2" id="btnLogout"><i class="bi bi-box-arrow-right"></i> Salir</button>
+    </div>
+  </aside>
+
+  <div class="contenido">
+    <div class="topbar">
+      <button class="btn btn-menu-movil btn-outline-secondary" id="btnMenuMovil"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold" id="tituloSeccion">Dashboard</span>
+      <span></span>
+    </div>
+
+    <div class="contenido-body">
+
+      <!-- DASHBOARD -->
+      <section id="seccion-dashboard" class="seccion">
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle mb-3">Resumen general de la privada</div>
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3"><div class="card kpi-card"><div class="card-body d-flex align-items-center gap-3">
+            <div class="kpi-icono"><i class="bi bi-house-door"></i></div>
+            <div><div class="kpi-valor" id="kpiCasas">-</div><div class="kpi-label">Casas registradas</div></div>
+          </div></div></div>
+          <div class="col-6 col-lg-3"><div class="card kpi-card"><div class="card-body d-flex align-items-center gap-3">
+            <div class="kpi-icono"><i class="bi bi-people"></i></div>
+            <div><div class="kpi-valor" id="kpiResidentes">-</div><div class="kpi-label">Residentes activos</div></div>
+          </div></div></div>
+          <div class="col-6 col-lg-3"><div class="card kpi-card"><div class="card-body d-flex align-items-center gap-3">
+            <div class="kpi-icono"><i class="bi bi-qr-code"></i></div>
+            <div><div class="kpi-valor" id="kpiQrsActivos">-</div><div class="kpi-label">QRs activos</div></div>
+          </div></div></div>
+          <div class="col-6 col-lg-3"><div class="card kpi-card"><div class="card-body d-flex align-items-center gap-3">
+            <div class="kpi-icono"><i class="bi bi-box-seam"></i></div>
+            <div><div class="kpi-valor" id="kpiInventario">-</div><div class="kpi-label">Equipo en inventario</div></div>
+          </div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header">Últimos eventos de acceso</div>
+          <div class="card-body p-0">
+            <div class="table-responsive"><table class="table table-hover mb-0">
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Resultado</th><th>Visitante</th></tr></thead>
+              <tbody id="tablaDashboardEventos"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MIS QRS (RESIDENTE) -->
+      <section id="seccion-mis-qrs" class="seccion">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div><div class="page-title mb-0">Mis Visitantes / QRs</div><div class="page-subtitle">Genera accesos temporales para tus visitas</div></div>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoQr"><i class="bi bi-plus-lg"></i> Generar QR</button>
+        </div>
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive"><table class="table table-hover mb-0">
+              <thead><tr><th>Visitante</th><th>Placa</th><th>Vigencia</th><th>Usos</th><th>Estado</th><th></th></tr></thead>
+              <tbody id="tablaMisQrs"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ESCANEAR (GUARDIA) -->
+      <section id="seccion-escanear" class="seccion">
+        <div class="page-title">Escanear QR</div>
+        <div class="page-subtitle mb-3">Valida el acceso de un visitante en la caseta</div>
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="card mb-3">
+              <div class="card-body">
+                <div id="lectorQr"></div>
+                <button class="btn btn-outline-secondary w-100 mt-3" id="btnIniciarCamara"><i class="bi bi-camera"></i> Iniciar cámara</button>
+                <button class="btn btn-outline-danger w-100 mt-2 d-none" id="btnDetenerCamara">Detener cámara</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <label class="form-label">O pega el contenido del QR manualmente</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="tokenManual" placeholder="selector.verifier">
+                  <button class="btn btn-primary" id="btnEscanearManual">Escanear</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div id="resultadoScan" class="card d-none"><div class="card-body" id="resultadoScanBody"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CASAS -->
+      <section id="seccion-casas" class="seccion">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div class="page-title mb-0">Casas</div>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCasa"><i class="bi bi-plus-lg"></i> Nueva casa</button>
+        </div>
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive"><table class="table table-hover mb-0">
+              <thead><tr><th>Número</th><th>Notas</th><th>Estado</th><th>Residentes</th></tr></thead>
+              <tbody id="tablaCasas"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESIDENTES -->
+      <section id="seccion-residentes" class="seccion">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div class="page-title mb-0">Residentes</div>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalResidente"><i class="bi bi-plus-lg"></i> Nuevo residente</button>
+        </div>
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive"><table class="table table-hover mb-0">
+              <thead><tr><th>Nombre</th><th>Casa</th><th>Teléfono</th><th>Email</th><th>Estado</th></tr></thead>
+              <tbody id="tablaResidentes"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DISPOSITIVOS / PUNTOS DE ACCESO -->
+      <section id="seccion-dispositivos" class="seccion">
+        <div class="page-title mb-3">Puntos de Acceso / Dispositivos</div>
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="mb-0 text-muted">PUNTOS DE ACCESO</h6>
+              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalAccessPoint"><i class="bi bi-plus-lg"></i> Nuevo</button>
+            </div>
+            <div class="card">
+              <div class="card-body p-0">
+                <div class="table-responsive"><table class="table table-hover mb-0">
+                  <thead><tr><th>Nombre</th><th>Tipo</th><th>Dirección</th><th>Activo</th></tr></thead>
+                  <tbody id="tablaAccessPoints"></tbody>
+                </table></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="mb-0 text-muted">DISPOSITIVOS</h6>
+              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalDevice"><i class="bi bi-plus-lg"></i> Nuevo</button>
+            </div>
+            <div class="card">
+              <div class="card-body p-0">
+                <div class="table-responsive"><table class="table table-hover mb-0">
+                  <thead><tr><th>Nombre</th><th>Driver</th><th>Puntos vinculados</th></tr></thead>
+                  <tbody id="tablaDevices"></tbody>
+                </table></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVENTARIO -->
+      <section id="seccion-inventario" class="seccion">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div><div class="page-title mb-0">Equipo e Inventario</div><div class="page-subtitle">Plumas, motores, paneles, cámaras y demás equipo físico instalado</div></div>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalInventario"><i class="bi bi-plus-lg"></i> Nuevo ítem</button>
+        </div>
+        <div class="row g-2 mb-3" id="filtroTenantInventarioWrap" style="display:none">
+          <div class="col-auto">
+            <select class="form-select" id="selectorTenantInventario">
+              <option value="">Todas las privadas</option>
+            </select>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive"><table class="table table-hover mb-0">
+              <thead><tr>
+                <th data-rol-col="SUPER_ADMIN">Privada</th><th>Nombre</th><th>Categoría</th><th>Marca/Modelo</th>
+                <th>N° de serie</th><th>Estado</th><th>Ubicación</th><th></th>
+              </tr></thead>
+              <tbody id="tablaInventario"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EVENTOS -->
+      <section id="seccion-eventos" class="seccion">
+        <div class="page-title mb-3">Historial de Accesos</div>
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive"><table class="table table-hover mb-0">
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Resultado</th><th>Visitante</th><th>Punto de acceso</th><th>Dispositivo</th><th>Detalle</th></tr></thead>
+              <tbody id="tablaEventos"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TENANTS -->
+      <section id="seccion-tenants" class="seccion">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div class="page-title mb-0">Privadas</div>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTenant"><i class="bi bi-plus-lg"></i> Nueva privada</button>
+        </div>
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive"><table class="table table-hover mb-0">
+              <thead><tr><th>Nombre</th><th>Slug</th><th>Activa</th><th>Casas</th></tr></thead>
+              <tbody id="tablaTenants"></tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO QR -->
+<div class="modal fade" id="modalNuevoQr" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <form id="formNuevoQr">
+        <div class="modal-header"><h5 class="modal-title">Generar QR para visita</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Nombre del visitante</label><input type="text" class="form-control" id="qrVisitante" required></div>
+          <div class="mb-2"><label class="form-label">Placa del vehículo (opcional)</label><input type="text" class="form-control" id="qrPlaca"></div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-6"><label class="form-label">Desde</label><input type="datetime-local" class="form-control" id="qrDesde" required></div>
+            <div class="col-12 col-sm-6"><label class="form-label">Hasta</label><input type="datetime-local" class="form-control" id="qrHasta" required></div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Usos permitidos</label><input type="number" class="form-control" id="qrUsos" value="1" min="1" required></div>
+          <div class="mb-2"><label class="form-label">Notas (opcional)</label><textarea class="form-control" id="qrNotas" rows="2"></textarea></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Generar QR</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER QR GENERADO -->
+<div class="modal fade" id="modalVerQr" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">QR generado</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body text-center">
+        <img id="imagenQrGenerado" class="qr-imagen mb-3" alt="Código QR">
+        <p class="text-muted small">Comparte esta imagen con tu visitante. Válido para <span id="qrGeneradoUsos"></span> uso(s).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CASA -->
+<div class="modal fade" id="modalCasa" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formCasa">
+        <div class="modal-header"><h5 class="modal-title">Nueva casa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Número / identificador</label><input type="text" class="form-control" id="casaNumero" required></div>
+          <div class="mb-2"><label class="form-label">Notas</label><textarea class="form-control" id="casaNotas" rows="2"></textarea></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESIDENTE -->
+<div class="modal fade" id="modalResidente" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formResidente">
+        <div class="modal-header"><h5 class="modal-title">Nuevo residente</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Casa</label><select class="form-select" id="residenteCasaId" required></select></div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-6"><label class="form-label">Nombre</label><input type="text" class="form-control" id="residenteNombre" required></div>
+            <div class="col-12 col-sm-6"><label class="form-label">Apellido</label><input type="text" class="form-control" id="residenteApellido" required></div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Teléfono</label><input type="text" class="form-control" id="residenteTelefono"></div>
+          <div class="mb-2"><label class="form-label">Email</label><input type="email" class="form-control" id="residenteEmail"></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ACCESS POINT -->
+<div class="modal fade" id="modalAccessPoint" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formAccessPoint">
+        <div class="modal-header"><h5 class="modal-title">Nuevo punto de acceso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Nombre</label><input type="text" class="form-control" id="apNombre" placeholder="Ej. Entrada Principal" required></div>
+          <div class="mb-2"><label class="form-label">Tipo</label>
+            <select class="form-select" id="apTipo">
+              <option value="VehicularGate">Pluma vehicular</option>
+              <option value="PedestrianGate">Portón peatonal</option>
+              <option value="MainEntrance">Entrada principal</option>
+              <option value="ServiceEntrance">Entrada de servicio</option>
+              <option value="Other">Otro</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Dirección</label>
+            <select class="form-select" id="apDireccion">
+              <option value="Both">Ambas</option>
+              <option value="In">Entrada</option>
+              <option value="Out">Salida</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEVICE -->
+<div class="modal fade" id="modalDevice" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formDevice">
+        <div class="modal-header"><h5 class="modal-title">Nuevo dispositivo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Nombre</label><input type="text" class="form-control" id="devNombre" placeholder="Ej. Pluma Entrada Principal" required></div>
+          <div class="mb-2"><label class="form-label">Fabricante</label><input type="text" class="form-control" id="devFabricante" placeholder="Mock / Shelly / Hikvision..."></div>
+          <div class="mb-2"><label class="form-label">Driver</label>
+            <select class="form-select" id="devDriver">
+              <option value="Mock">Mock (desarrollo/demo)</option>
+              <option value="ShellyCloud">Shelly Cloud</option>
+              <option value="Hikvision">Hikvision</option>
+              <option value="GenericRelay">Relay genérico</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">IP (opcional)</label><input type="text" class="form-control" id="devIp"></div>
+          <hr>
+          <div class="mb-2"><label class="form-label">Vincular a punto de acceso</label><select class="form-select" id="devAccessPointId"></select></div>
+          <div class="mb-2"><label class="form-label">Canal / relay</label><input type="number" class="form-control" id="devCanal" value="1" min="1"></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL INVENTARIO -->
+<div class="modal fade" id="modalInventario" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <form id="formInventario">
+        <div class="modal-header"><h5 class="modal-title" id="tituloModalInventario">Nuevo ítem de inventario</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <input type="hidden" id="inventarioId">
+          <div class="mb-2" id="campoInventarioTenant" style="display:none">
+            <label class="form-label">Privada</label>
+            <select class="form-select" id="inventarioTenantId"></select>
+          </div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-6">
+              <label class="form-label">Categoría</label>
+              <select class="form-select" id="inventarioCategoria">
+                <option value="Barrier">Pluma / Barrera</option>
+                <option value="GateMotor">Motor de portón</option>
+                <option value="HikvisionPanel">Panel de control</option>
+                <option value="Camera">Cámara</option>
+                <option value="Reader">Lector</option>
+                <option value="Relay">Relay</option>
+                <option value="NetworkEquipment">Equipo de red</option>
+                <option value="Ups">UPS / Respaldo eléctrico</option>
+                <option value="Cabling">Cableado</option>
+                <option value="Other">Otro</option>
+              </select>
+            </div>
+            <div class="col-12 col-sm-6" id="campoInventarioEstado" style="display:none">
+              <label class="form-label">Estado</label>
+              <select class="form-select" id="inventarioEstado">
+                <option value="Active">Activo</option>
+                <option value="InRepair">En reparación</option>
+                <option value="InStorage">En almacén</option>
+                <option value="Decommissioned">Dado de baja</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Nombre / identificador</label><input type="text" class="form-control" id="inventarioNombre" placeholder="Ej. Pluma Entrada Principal" required></div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-4"><label class="form-label">Marca</label><input type="text" class="form-control" id="inventarioMarca"></div>
+            <div class="col-12 col-sm-4"><label class="form-label">Modelo</label><input type="text" class="form-control" id="inventarioModelo"></div>
+            <div class="col-12 col-sm-4"><label class="form-label">N° de serie</label><input type="text" class="form-control" id="inventarioSerie"></div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Ubicación</label><input type="text" class="form-control" id="inventarioUbicacion" placeholder="Ej. Caseta principal"></div>
+          <div class="row g-2">
+            <div class="col-12 col-sm-4"><label class="form-label">Fecha de instalación</label><input type="date" class="form-control" id="inventarioFechaInstalacion"></div>
+            <div class="col-12 col-sm-4"><label class="form-label">Fecha de compra</label><input type="date" class="form-control" id="inventarioFechaCompra"></div>
+            <div class="col-12 col-sm-4"><label class="form-label">Garantía hasta</label><input type="date" class="form-control" id="inventarioGarantia"></div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-12 col-sm-6"><label class="form-label">Proveedor</label><input type="text" class="form-control" id="inventarioProveedor"></div>
+            <div class="col-12 col-sm-6"><label class="form-label">Costo</label><input type="number" step="0.01" class="form-control" id="inventarioCosto"></div>
+          </div>
+          <div class="mb-2 mt-2"><label class="form-label">Notas</label><textarea class="form-control" id="inventarioNotas" rows="2"></textarea></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TENANT -->
+<div class="modal fade" id="modalTenant" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formTenant">
+        <div class="modal-header"><h5 class="modal-title">Nueva privada</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-2"><label class="form-label">Nombre</label><input type="text" class="form-control" id="tenantNombre" required></div>
+          <div class="mb-2"><label class="form-label">Slug (identificador único, sin espacios)</label><input type="text" class="form-control" id="tenantSlug" required></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

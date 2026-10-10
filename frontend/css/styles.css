@@ -1,0 +1,178 @@
+:root {
+  --brand: #4f46e5;
+  --brand-dark: #4338ca;
+  --brand-light: #818cf8;
+  --sidebar-bg: #0f172a;
+  --sidebar-bg-hover: #1e293b;
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #ffffff;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --sidebar-width: 260px;
+  --topbar-height: 60px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+/* ---------- Login ---------- */
+#loginBox {
+  max-width: 400px;
+  margin: 6rem auto;
+  border: none;
+  box-shadow: 0 10px 40px rgba(15, 23, 42, .08);
+  border-radius: 1rem;
+}
+#loginBox .brand-mark {
+  width: 52px; height: 52px; border-radius: .75rem;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.5rem; margin: 0 auto 1rem;
+}
+
+/* ---------- App shell ---------- */
+#app { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1040;
+  transition: transform .2s ease;
+}
+
+.sidebar-brand {
+  height: var(--topbar-height);
+  display: flex; align-items: center; gap: .6rem;
+  padding: 0 1.25rem;
+  color: #fff; font-weight: 700; font-size: 1.05rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.sidebar-brand .brand-mark {
+  width: 32px; height: 32px; border-radius: .5rem;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0;
+}
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding: .75rem; }
+.sidebar-nav .nav-link {
+  color: var(--sidebar-text);
+  padding: .6rem .85rem;
+  border-radius: .5rem;
+  margin-bottom: .15rem;
+  font-size: .92rem;
+  display: flex; align-items: center; gap: .65rem;
+}
+.sidebar-nav .nav-link:hover { background: var(--sidebar-bg-hover); color: #fff; }
+.sidebar-nav .nav-link.activo { background: var(--brand); color: #fff; }
+.sidebar-nav .nav-link i { width: 18px; text-align: center; }
+.sidebar-section-label {
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+  color: #475569; padding: 1rem .85rem .35rem;
+}
+
+.sidebar-footer { padding: .85rem 1.1rem; border-top: 1px solid rgba(255,255,255,.08); }
+.sidebar-footer .usuario-nombre { color: #fff; font-size: .85rem; font-weight: 600; }
+.sidebar-footer .usuario-rol { color: var(--sidebar-text); font-size: .75rem; }
+
+.contenido {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: var(--topbar-height);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.25rem;
+  position: sticky; top: 0; z-index: 1020;
+}
+.btn-menu-movil { display: none; }
+
+.contenido-body { padding: 1.5rem; flex: 1; }
+
+.overlay-sidebar {
+  display: none;
+  position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 1035;
+}
+
+@media (max-width: 991.98px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.abierta { transform: translateX(0); }
+  .contenido { margin-left: 0; }
+  .btn-menu-movil { display: inline-flex; }
+  .overlay-sidebar.activa { display: block; }
+  .contenido-body { padding: 1rem; }
+}
+
+/* ---------- Secciones ---------- */
+.seccion { display: none; }
+.seccion.activa { display: block; }
+
+.page-title { font-size: 1.4rem; font-weight: 700; margin-bottom: .25rem; }
+.page-subtitle { color: var(--text-muted); font-size: .9rem; }
+
+/* ---------- Cards / KPIs ---------- */
+.card { border: 1px solid var(--border); border-radius: .75rem; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+.card-header { background: var(--surface); border-bottom: 1px solid var(--border); font-weight: 600; }
+
+.kpi-card .kpi-valor { font-size: 1.8rem; font-weight: 700; color: var(--text); }
+.kpi-card .kpi-label { color: var(--text-muted); font-size: .82rem; }
+.kpi-card .kpi-icono {
+  width: 44px; height: 44px; border-radius: .6rem;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(79,70,229,.1); color: var(--brand); font-size: 1.2rem;
+}
+
+/* ---------- Tablas ---------- */
+.table-responsive { border-radius: .5rem; }
+.table thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); border-bottom-width: 1px; }
+.table td, .table th { vertical-align: middle; }
+
+/* ---------- Botones ---------- */
+.btn-primary { background: var(--brand); border-color: var(--brand); }
+.btn-primary:hover, .btn-primary:focus { background: var(--brand-dark); border-color: var(--brand-dark); }
+.btn-outline-primary { color: var(--brand); border-color: var(--brand); }
+.btn-outline-primary:hover { background: var(--brand); border-color: var(--brand); }
+
+/* ---------- Badges de estado ---------- */
+.badge-estado-Active { background-color: #16a34a; }
+.badge-estado-Inactive { background-color: #94a3b8; }
+
+.badge-pass-Active { background-color: #16a34a; }
+.badge-pass-Used { background-color: #94a3b8; }
+.badge-pass-Expired { background-color: #cbd5e1; color: #0f172a; }
+.badge-pass-Revoked { background-color: #dc2626; }
+.badge-pass-Disabled { background-color: #dc2626; }
+
+.badge-inv-Active { background-color: #16a34a; }
+.badge-inv-InRepair { background-color: #f59e0b; color: #451a03; }
+.badge-inv-InStorage { background-color: #64748b; }
+.badge-inv-Decommissioned { background-color: #dc2626; }
+
+/* ---------- QR ---------- */
+.qr-imagen { width: 240px; height: 240px; border: 1px solid var(--border); border-radius: .75rem; background: #fff; padding: .5rem; }
+
+/* ---------- Escaneo ---------- */
+#lectorQr { width: 100%; max-width: 420px; margin: 0 auto; border-radius: .5rem; overflow: hidden; }
+.resultado-scan-ok { background-color: #dcfce7; border: 1px solid #16a34a; }
+.resultado-scan-error { background-color: #fee2e2; border: 1px solid #dc2626; }
+
+/* ---------- Selector de privada (SUPER_ADMIN) ---------- */
+#selectorTenantInventario { max-width: 280px; }
